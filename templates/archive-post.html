@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>1337b04rd Archived Post</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #eef1f5;
+      padding: 30px;
+      color: #333;
+    }
+
+    a.back {
+      text-decoration: none;
+      color: #555;
+      margin-bottom: 20px;
+      display: inline-block;
+      font-weight: bold;
+    }
+
+    .post, .comment {
+        background-color: #fff;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        white-space: normal; 
+        max-width: auto;    
+}
+
+
+
+    .post-header, .comment-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .avatar {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #ddd;
+    }
+
+    h2 {
+      margin-top: 10px;
+      font-size: 1.4em;
+    }
+
+    .post-image {
+      margin-top: 15px;
+      max-width: 100%;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    .meta {
+      font-size: 0.85em;
+      color: #888;
+    }
+
+    .comment {
+      margin-left: 40px;
+      border-left: 3px solid #ccc;
+      padding-left: 20px;
+    }
+
+    .reply {
+      font-style: italic;
+      color: #666;
+      margin-top: 8px;
+      font-size: 0.85em;
+    }
+
+    .reply-button {
+      margin-top: 8px;
+      background: none;
+      border: none;
+      color: #0077cc;
+      cursor: pointer;
+      font-size: 0.85em;
+      text-decoration: underline;
+    }
+
+    .form {
+      margin-top: 25px;
+    }
+
+    .form textarea {
+      width: 100%;
+      padding: 12px;
+      font-family: inherit;
+      font-size: 1em;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      resize: vertical;
+      overflow: auto;
+    }
+
+    .form button {
+      margin-top: 10px;
+      padding: 10px 18px;
+      background: #0077cc;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .form button:hover {
+      background: #005fa3;
+    }
+
+    .form.hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+<a class="back" href="/archive">← Back to Archive</a>
+
+<div class="post">
+  <div class="post-header">
+    <img src="{{.Post.UserAvatar}}" alt="avatar" class="avatar" />
+    <strong>{{.Post.UserName}}</strong>
+    <span class="meta">Posted: {{.Post.CreatedAt.Format "Jan 02, 2006 15:04"}}</span>
+  </div>
+  <h2>{{.Post.Title}}</h2>
+  <p>{{.Post.Content}}</p>
+  {{if .Post.Image}}
+    <img src="{{.Post.Image}}" class="post-image" alt="Post image" />
+  {{end}}
+</div>
+
+{{define "comment"}}
+<div class="comment">
+  <div class="comment-header">
+    <img src="{{.Comment.UserAvatar}}" alt="avatar" class="avatar" />
+    <strong>{{.Comment.UserName}}</strong>
+    <span class="meta">Commented: {{.Comment.CreatedAt.Format "Jan 02, 15:04"}}</span>
+  </div>
+  <p>{{.Comment.Content}}</p>
+  {{if .Comment.ParentCommentID}}
+    <div class="reply">↳ In reply to #{{.Comment.ParentCommentID}}</div>
+  {{end}}
+  {{range .Replies}}
+    {{template "comment" .}}
+  {{end}}
+</div>
+{{end}}
+
+{{range .CommentTree}}
+  {{template "comment" .}}
+{{end}}
+
+</body>
+</html>

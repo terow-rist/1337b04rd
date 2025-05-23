@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1337b04rd Archive</title>
+    <style>
+        body {
+            background-color: #eef1f5;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .button {
+            display: inline-block;
+            padding: 8px 16px;
+            background-color: #444;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+        }
+        .button:hover {
+            background-color: #222;
+        }
+        .catalog {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .thread {
+            background-color: #fff;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+            overflow: hidden;
+        }
+        .thread:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .thread-image {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            background-color: #eee;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+            font-size: 15px;
+        }
+        .thread-title {
+            font-size: 16px;
+            line-height: 1.4;
+            max-height: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 10px;
+        }
+        .thread-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 15px;
+            color: #777;
+        }
+        .thread-link {
+            text-decoration: none;
+            color: inherit;
+        }
+        .no-threads {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 40px;
+            color: #777;
+        }
+        .info-box {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-size: 18px;
+        }
+        .info-box ul {
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>1337b04rd Archive</h1>
+        <div>
+            <a href="/" class="button">Catalog</a>
+            <a href="/create" class="button">New Thread</a>
+        </div>
+    </div>
+    
+    <div class="catalog">
+        {{if .Posts}}
+            {{range .Posts}}
+                <a href="/post/{{.ID}}" class="thread-link">
+                    <div class="thread">
+                        {{if .Image}}
+                            <img src="{{.Image}}" alt="Thread image" class="thread-image">
+                        {{else}}
+                            <div class="thread-image">No image</div>
+                        {{end}}
+                        <div class="thread-title">{{.Title}}</div>
+                        <div class="thread-info">
+                            <span>ID: {{.ID}}</span>
+                            <span>{{.CreatedAt.Format "Jan 02, 15:04"}}</span>
+                        </div>
+                    </div>
+                </a>
+            {{end}}
+        {{else}}
+            <div class="no-threads">No active threads</div>
+        {{end}}
+    </div>
+    
+    <div class="info-box">
+        <p><strong>Thread deletion rules:</strong></p>
+        <ul>
+            <li>Posts without comments are deleted after 10 minutes</li>
+            <li>Posts with comments are deleted 15 minutes after the last comment</li>
+        </ul>
+    </div>
+</body>
+</html>
