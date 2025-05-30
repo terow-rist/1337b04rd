@@ -1,25 +1,25 @@
 package cmd
 
 import (
+	"1337bo4rd/internal/adapter/api"
+	"1337bo4rd/internal/adapter/config"
+	"1337bo4rd/internal/adapter/logger"
+	"1337bo4rd/internal/adapter/storage/postgres"
+	"1337bo4rd/internal/adapter/storage/postgres/repository"
+	"1337bo4rd/internal/core/service"
 	"fmt"
 	"log"
 	"log/slog"
 	"net/http"
 	"os"
 
-	"1337bo4rd/internal/adapter/api"
-	"1337bo4rd/internal/adapter/config"
 	flag "1337bo4rd/internal/adapter/config"
 	httpserver "1337bo4rd/internal/adapter/handler/http"
-	"1337bo4rd/internal/adapter/logger"
-	"1337bo4rd/internal/adapter/storage/postgres"
-	"1337bo4rd/internal/adapter/storage/postgres/repository"
-	"1337bo4rd/internal/core/service"
 )
 
 func Run() {
 	// Parse flags
-	err := flag.Parse(os.Args[1:])
+	err := flag.Parse()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -57,5 +57,4 @@ func Run() {
 	slog.Info(fmt.Sprintf("Listening on port: %d", flag.Port))
 	err = http.ListenAndServe(fmt.Sprintf(":%d", flag.Port), mux)
 	log.Fatal(err)
-
 }
