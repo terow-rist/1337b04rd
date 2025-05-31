@@ -14,17 +14,17 @@ import (
 // Singleton Pattern: SQL database connection
 var postgresDB *sql.DB
 
-func OpenDB(config *config.DB) (*sql.DB, error) {
+func OpenDB(cfg *config.DB) (*sql.DB, error) {
 	// init varibales
-	dbName := config.Name
-	host := config.Host
-	userName := config.User
-	password := config.Password
-	port := config.Port
+	conn := cfg.Connection
+	dbName := cfg.Name
+	host := cfg.Host
+	userName := cfg.User
+	password := cfg.Password
+	port := cfg.Port
 
-	// postgres://YourUserName:YourPassword@YourHostname:5432/YourDatabaseName
-	// postgres://username:password@host/dbname
-	var dsn = fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", userName, password, host, port, dbName)
+	// postgres://username:password@host:port/dbname
+	var dsn = fmt.Sprintf("%s://%s:%s@%s:%s/%s?sslmode=disable", conn, userName, password, host, port, dbName)
 
 	if postgresDB != nil {
 		return postgresDB, nil
@@ -39,7 +39,7 @@ func OpenDB(config *config.DB) (*sql.DB, error) {
 	var err error
 
 	// Try connecting up to maxRetries times
-	for range maxRetries {
+	for maxRetries > 0 {
 		db, err = sql.Open("postgres", dsn)
 		if err == nil {
 			// Create a context with a timeout for the Ping operation
@@ -59,6 +59,7 @@ func OpenDB(config *config.DB) (*sql.DB, error) {
 		// If any error occurs, log it and retry after a delay
 		//slog.Errorf("Failed to connect to PostgreSQL, retrying in %v... (attempt %d/%d)", retryInterval, i+1, maxRetries)
 		time.Sleep(retryInterval)
+		maxRetries--
 	}
 
 	slog.Error("Failed to connect to PostgreSQL after", "attempts", maxRetries, "interval", retryInterval, "error", err)
