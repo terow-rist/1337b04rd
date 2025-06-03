@@ -49,7 +49,7 @@ func (s *PostService) ListActive() ([]domain.Post, error) {
 		if err != nil {
 			// No comment found, fallback to post time
 			if errors.Is(err, sql.ErrNoRows) {
-				if now.Sub(post.CreatedAt) < 10*time.Minute {
+				if now.Sub(post.CreatedAt) < 1*time.Minute {
 					validPosts = append(validPosts, post)
 				} else {
 					err = s.repo.UpdatePostArchivedAt(post.ID, &now)
@@ -64,7 +64,7 @@ func (s *PostService) ListActive() ([]domain.Post, error) {
 		}
 
 		// If comment exists, check if it's recent enough
-		if now.Sub(comment.CreatedAt) < 15*time.Minute {
+		if now.Sub(comment.CreatedAt) < 2*time.Minute {
 			validPosts = append(validPosts, post)
 		} else {
 			err = s.repo.UpdatePostArchivedAt(post.ID, &now)
