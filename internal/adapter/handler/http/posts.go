@@ -3,6 +3,7 @@ package httpserver
 import (
 	"1337bo4rd/internal/core/domain"
 	"1337bo4rd/internal/core/port"
+	"1337bo4rd/internal/adapter/storage/minio"
 	"database/sql"
 	"errors"
 	"html/template"
@@ -10,22 +11,25 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"fmt"
 )
 
 type PostHandler struct {
 	svc  port.PostService
 	tmpl *template.Template
+	storage *minio.MinioClient
 }
 
 var msg = "Failed to load threads."
 var statusCode = http.StatusInternalServerError
 
-func NewPostHandler(svc port.PostService) *PostHandler {
+func NewPostHandler(svc port.PostService, mio *minio.MinioClient) *PostHandler {
 	tmpl := template.Must(template.ParseGlob("templates/*.html"))
 
 	return &PostHandler{
 		svc,
 		tmpl,
+		mio,
 	}
 }
 
@@ -122,19 +126,31 @@ func (h *PostHandler) HandleCreate(w http.ResponseWriter, r *http.Request) {
 	userSession := getSession(r)
 	title := r.FormValue("title")
 	content := r.FormValue("content")
-
+	var imageURL string
 	// CONTINUE WITH MINIIO!
 	// var img io.Reader
-	// if f, _, err := r.FormFile("image"); err == nil {
-	// 	defer f.Close()
-	// 	img = f
-	// }
+	if f, _, err := r.FormFile("image"); err == nil {
+		defer f.Close()
+		// session == userSession
+		// tried to implement minio
+		url, err := h.storage.UploadImage(r.Context(), f, "post-image.jpg", "image/jpeg")
+		if err != nil {
+			http.Error(w, fmt.Sprintf("Error uploading image: %s", err), http.StatusInternalServerError)
+			return
+		}
+
+		imageURL = url
+	} else if err != http.ErrMissingFile {
+		http.Error(w, fmt.Sprintf("Error extracting image: %s", err), http.StatusBadRequest)
+		return
+	}
 
 	post := &domain.Post{
 		Title:      title,
 		Content:    content,
 		UserName:   userSession.Name,
 		UserAvatar: userSession.Avatar,
+		Image: imageURL,
 	}
 
 	err := h.svc.CreatePost(post)

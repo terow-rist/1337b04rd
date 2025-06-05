@@ -5,6 +5,7 @@ import (
 	"1337bo4rd/internal/adapter/config"
 	"1337bo4rd/internal/adapter/logger"
 	"1337bo4rd/internal/adapter/storage/postgres"
+	"1337bo4rd/internal/adapter/storage/minio"
 	"1337bo4rd/internal/adapter/storage/postgres/repository"
 	"1337bo4rd/internal/core/service"
 	"fmt"
@@ -19,7 +20,14 @@ import (
 
 func Run() {
 	// Parse flags
-	err := flag.Parse()
+	minio, err := minio.NewMinioClient(
+		"minio:9000", // endpoint
+	)
+	if err != nil {
+		panic(fmt.Sprintf("failed to initialize Minio client: %v", err))
+	}
+
+	err = flag.Parse()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -50,9 +58,10 @@ func Run() {
 	postService := service.NewPostService(postRepo, commentRepo)
 	userService := service.NewUserService(userRepo, avatarProv)
 	// Handlers
-	postHandler := httpserver.NewPostHandler(postService)
+	postHandler := httpserver.NewPostHandler(postService, minio)
 
 	mux := httpserver.NewRouter(*postHandler, userService)
+
 
 	slog.Info(fmt.Sprintf("Listening on port: %d", flag.Port))
 	err = http.ListenAndServe(fmt.Sprintf(":%d", flag.Port), mux)
