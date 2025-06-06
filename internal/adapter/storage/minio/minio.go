@@ -1,68 +1,60 @@
 package minio
 
 import (
+	"1337bo4rd/internal/adapter/config"
+	"bytes"
 	"context"
 	"fmt"
 	"mime/multipart"
-	"time"
 	"net/http"
-	"bytes"
-	
+	"time"
+
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
 type MinioClient struct {
-	client        *minio.Client
-	avatarBucket  string
-	postBucket    string
-	commentBucket string
-	sessionBucket string 
+	client     *minio.Client
+	postBucket string
 }
 
-func NewMinioClient(endpoint string) (*MinioClient, error) {
-	client, err := minio.New(endpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4("minioadmin", "minioadmin", ""),
-		Secure: false,
+func NewMinioClient(mio *config.Minio) (*MinioClient, error) {
+	// initialization of minio client
+	client, err := minio.New(mio.Endpoint, &minio.Options{
+		Creds:  credentials.NewStaticV4(mio.AccessKey, mio.SecretKey, ""),
+		Secure: mio.SSL,
 	})
 	if err != nil {
-		return nil, fmt.Errorf("failed to initialize Minio client: %w", err)
+		return nil, err
 	}
 
-	// Buckets to create
-	buckets := []string{"avatars", "posts", "comments", "sessions"} 
-
-	for _, bucket := range buckets {
-		for attempts := 0; attempts < 3; attempts++ {
-			exists, err := client.BucketExists(context.Background(), bucket)
-			if err == nil && exists {
-				break
-			}
-			if err == nil {
-				err := client.MakeBucket(context.Background(), bucket, minio.MakeBucketOptions{})
-				if err != nil {
-					return nil, fmt.Errorf("failed to create bucket %s: %w", bucket, err)
-				}
-				break
-			}
-			time.Sleep(3 * time.Second)
+	// creation of posts bucket
+	for attempts := 0; attempts < 3; attempts++ {
+		exists, err := client.BucketExists(context.Background(), "posts")
+		if err == nil && exists {
+			break
 		}
+		if err == nil {
+			err := client.MakeBucket(context.Background(), "posts", minio.MakeBucketOptions{})
+			if err != nil {
+				return nil, fmt.Errorf("failed to create bucket %s: %w", "posts", err)
+			}
+			break
+		}
+		time.Sleep(3 * time.Second)
 	}
 
 	return &MinioClient{
-		client:        client,
-		avatarBucket:  "avatars",
-		postBucket:    "posts",
-		commentBucket: "comments",
-		sessionBucket: "sessions", 
+		client:     client,
+		postBucket: "posts",
 	}, nil
 }
 
 func (m *MinioClient) UploadImage(ctx context.Context, file multipart.File, filename, contentType string) (string, error) {
-	// Generate a unique object name using timestamp and filename
+	// generate a unique object name using timestamp and filename
 	objectName := fmt.Sprintf("%d-%s", time.Now().UnixNano(), filename)
 
-	// Upload the image to the 'posts' bucket
+	// upload the image to the 'posts' bucket
 	_, err := m.client.PutObject(ctx, m.postBucket, objectName, file, -1, minio.PutObjectOptions{
 		ContentType: contentType,
 	})
@@ -70,18 +62,17 @@ func (m *MinioClient) UploadImage(ctx context.Context, file multipart.File, file
 		return "", fmt.Errorf("failed to upload image: %w", err)
 	}
 
-	// Construct and return the URL of the uploaded image
+	// construct and return the URL of the uploaded image
 	imageURL := fmt.Sprintf("/images/posts/%s", objectName)
 	return imageURL, nil
 }
 
 func ServePostImageHandler(storage *MinioClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		filename := r.PathValue("filename") // Go 1.21+
+		filename := r.PathValue("filename")
 		data, contentType, err := storage.GetImage(r.Context(), "posts", filename)
 		if err != nil {
-			http.Error(w, "Image not found", http.StatusNotFound)
-			return
+			return // dumb
 		}
 
 		w.Header().Set("Content-Type", contentType)

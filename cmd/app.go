@@ -20,14 +20,8 @@ import (
 
 func Run() {
 	// Parse flags
-	minio, err := minio.NewMinioClient(
-		"minio:9000", // endpoint
-	)
-	if err != nil {
-		panic(fmt.Sprintf("failed to initialize Minio client: %v", err))
-	}
 
-	err = flag.Parse()
+	err := flag.Parse()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -39,6 +33,12 @@ func Run() {
 	logger.Set(config.App)
 	slog.Info("Staring application", "app", config.App.Name, "env", config.App.Env)
 
+	// minio
+	minio, err := minio.NewMinioClient(config.Minio)
+	if err != nil {
+		slog.Error("Failed to initialize Minio Client", "error", err)
+		os.Exit(1)
+	}
 	// Init database
 	db, err := postgres.OpenDB(config.DB)
 	if err != nil {

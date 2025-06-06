@@ -4,8 +4,9 @@ import "os"
 
 type (
 	Container struct {
-		App *App
-		DB  *DB
+		App   *App
+		DB    *DB
+		Minio *Minio
 	}
 
 	App struct {
@@ -20,6 +21,13 @@ type (
 		User       string
 		Password   string
 		Name       string
+	}
+
+	Minio struct {
+		Endpoint  string
+		AccessKey string
+		SecretKey string
+		SSL       bool
 	}
 )
 
@@ -38,8 +46,16 @@ func New() *Container {
 		Name:       os.Getenv("DB_NAME"),
 	}
 
+	minio := &Minio{
+		Endpoint:  os.Getenv("MINIO_ENDPOINT"),
+		AccessKey: os.Getenv("MINIO_ACCESS_KEY"),
+		SecretKey: os.Getenv("MINIO_SECRET_KEY"),
+		SSL:       false,
+	}
+
 	return &Container{
-		App: app,
-		DB:  db,
+		App:   app,
+		DB:    db,
+		Minio: minio,
 	}
 }

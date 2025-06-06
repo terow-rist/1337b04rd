@@ -6,7 +6,6 @@ import (
 	"1337bo4rd/internal/core/port"
 	"database/sql"
 	"errors"
-	"fmt"
 	"html/template"
 	"log/slog"
 	"net/http"
@@ -20,8 +19,10 @@ type PostHandler struct {
 	storage *minio.MinioClient
 }
 
-var msg = "Failed to load threads."
-var statusCode = http.StatusInternalServerError
+var (
+	msg        = "Failed to load threads."
+	statusCode = http.StatusInternalServerError
+)
 
 func NewPostHandler(svc port.PostService, mio *minio.MinioClient) *PostHandler {
 	tmpl := template.Must(template.ParseGlob("templates/*.html"))
@@ -58,7 +59,6 @@ func (h *PostHandler) HandleArchive(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *PostHandler) HandlePost(w http.ResponseWriter, r *http.Request) {
-
 	// add logic for r.Method(POST) Addd comments!
 	parts := strings.Split(strings.TrimPrefix(r.URL.Path, "/post/"), "/")
 	id := parts[0]
@@ -134,21 +134,21 @@ func (h *PostHandler) HandleCreate(w http.ResponseWriter, r *http.Request) {
 		renderError(w, h.tmpl, http.StatusBadRequest, "Title cannot be empty or whitespace")
 		return
 	}
+
+	// Minio usage
 	var imageURL string
-	// CONTINUE WITH MINIIO!
 	if f, _, err := r.FormFile("image"); err == nil {
 		defer f.Close()
-		// session == userSession
-		// tried to implement minio
+
 		url, err := h.storage.UploadImage(r.Context(), f, "post-image.jpg", "image/jpeg")
 		if err != nil {
-			http.Error(w, fmt.Sprintf("Error uploading image: %s", err), http.StatusInternalServerError)
+			renderError(w, h.tmpl, http.StatusInternalServerError, "Error uploading image")
 			return
 		}
 
 		imageURL = url
 	} else if err != http.ErrMissingFile {
-		http.Error(w, fmt.Sprintf("Error extracting image: %s", err), http.StatusBadRequest)
+		renderError(w, h.tmpl, http.StatusBadRequest, "Error extracting image")
 		return
 	}
 
