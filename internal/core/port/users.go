@@ -6,3 +6,5 @@ type UserRepository interface {
 	GetUserById(id string) (*domain.User, error)
 	SaveUser(user *domain.User) error
 }
+
+type UserService interface{}

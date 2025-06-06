@@ -4,8 +4,8 @@ import (
 	"1337bo4rd/internal/adapter/api"
 	"1337bo4rd/internal/adapter/config"
 	"1337bo4rd/internal/adapter/logger"
-	"1337bo4rd/internal/adapter/storage/postgres"
 	"1337bo4rd/internal/adapter/storage/minio"
+	"1337bo4rd/internal/adapter/storage/postgres"
 	"1337bo4rd/internal/adapter/storage/postgres/repository"
 	"1337bo4rd/internal/core/service"
 	"fmt"
@@ -59,9 +59,9 @@ func Run() {
 	userService := service.NewUserService(userRepo, avatarProv)
 	// Handlers
 	postHandler := httpserver.NewPostHandler(postService, minio)
+	userHandler := httpserver.NewUserHandler(userService)
 
-	mux := httpserver.NewRouter(*postHandler, userService)
-
+	mux := httpserver.NewRouter(*postHandler, userService, *userHandler)
 
 	slog.Info(fmt.Sprintf("Listening on port: %d", flag.Port))
 	err = http.ListenAndServe(fmt.Sprintf(":%d", flag.Port), mux)

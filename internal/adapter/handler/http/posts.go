@@ -1,22 +1,22 @@
 package httpserver
 
 import (
+	"1337bo4rd/internal/adapter/storage/minio"
 	"1337bo4rd/internal/core/domain"
 	"1337bo4rd/internal/core/port"
-	"1337bo4rd/internal/adapter/storage/minio"
 	"database/sql"
 	"errors"
+	"fmt"
 	"html/template"
 	"log/slog"
 	"net/http"
 	"strconv"
 	"strings"
-	"fmt"
 )
 
 type PostHandler struct {
-	svc  port.PostService
-	tmpl *template.Template
+	svc     port.PostService
+	tmpl    *template.Template
 	storage *minio.MinioClient
 }
 
@@ -128,7 +128,6 @@ func (h *PostHandler) HandleCreate(w http.ResponseWriter, r *http.Request) {
 	content := r.FormValue("content")
 	var imageURL string
 	// CONTINUE WITH MINIIO!
-	// var img io.Reader
 	if f, _, err := r.FormFile("image"); err == nil {
 		defer f.Close()
 		// session == userSession
@@ -150,7 +149,7 @@ func (h *PostHandler) HandleCreate(w http.ResponseWriter, r *http.Request) {
 		Content:    content,
 		UserName:   userSession.Name,
 		UserAvatar: userSession.Avatar,
-		Image: imageURL,
+		Image:      imageURL,
 	}
 
 	err := h.svc.CreatePost(post)
