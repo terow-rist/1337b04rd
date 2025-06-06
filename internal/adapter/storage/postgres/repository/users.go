@@ -42,3 +42,14 @@ func (r *UserRepository) SaveUser(user *domain.User) error {
 	_, err := r.db.Exec(query, user.ID, user.Name, user.Avatar, user.ExpiresAt)
 	return err
 }
+
+func (r *UserRepository) UpdateUser(user *domain.User) error {
+	query := `
+	UPDATE users
+	SET name = $1
+	WHERE user_id = $2
+	`
+
+	_, err := r.db.Exec(query, user.Name, user.ID)
+	return err
+}

@@ -50,3 +50,19 @@ func getSession(r *http.Request) *domain.User {
 	}
 	return nil
 }
+
+func setSession(w http.ResponseWriter, r *http.Request, user *domain.User) *http.Request {
+	// Update the cookie
+	http.SetCookie(w, &http.Cookie{
+		Name:     "session_id",
+		Value:    user.ID,
+		Path:     "/",
+		Expires:  user.ExpiresAt,
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+		Secure:   true,
+	})
+
+	// Return a new request with updated context
+	return r.WithContext(context.WithValue(r.Context(), sessionKey, user))
+}

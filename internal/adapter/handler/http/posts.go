@@ -126,6 +126,14 @@ func (h *PostHandler) HandleCreate(w http.ResponseWriter, r *http.Request) {
 	userSession := getSession(r)
 	title := r.FormValue("title")
 	content := r.FormValue("content")
+	if strings.TrimSpace(content) == "" {
+		renderError(w, h.tmpl, http.StatusBadRequest, "Content cannot be empty or whitespace")
+		return
+	}
+	if strings.TrimSpace(title) == "" {
+		renderError(w, h.tmpl, http.StatusBadRequest, "Title cannot be empty or whitespace")
+		return
+	}
 	var imageURL string
 	// CONTINUE WITH MINIIO!
 	if f, _, err := r.FormFile("image"); err == nil {
@@ -170,12 +178,20 @@ func (h *PostHandler) addComment(w http.ResponseWriter, r *http.Request, postID 
 			parent = v
 		}
 	}
+
+	content := r.FormValue("content")
+
+	if strings.TrimSpace(content) == "" {
+		renderError(w, h.tmpl, http.StatusBadRequest, "Content cannot be empty or whitespace")
+		return
+	}
 	comment := &domain.Comment{
 		UserName:        userSession.Name,
 		UserAvatar:      userSession.Avatar,
 		ParentCommentID: parent,
-		Content:         r.FormValue("content"),
+		Content:         content,
 	}
+
 	err := h.svc.CreateComment(comment, postID)
 	if err != nil {
 		if errors.Is(err, port.ErrInvalidPostId) {

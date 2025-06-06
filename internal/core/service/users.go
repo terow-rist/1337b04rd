@@ -51,3 +51,7 @@ func (s *UserService) FindOrCreate(id string) (*domain.User, bool, error) {
 	}
 	return user, true, nil
 }
+
+func (s *UserService) UpdateUser(user *domain.User) error {
+	return s.repo.UpdateUser(user)
+}
