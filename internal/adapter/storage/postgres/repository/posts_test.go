@@ -1,4 +1,4 @@
-package repository_test
+package repository
 
 import (
 	"1337bo4rd/internal/core/domain"
