@@ -4,7 +4,7 @@ import "1337bo4rd/internal/core/domain"
 
 type CommentRepository interface {
 	GetLastComment(id *uint64) (*domain.Comment, error)
-	CreateComment(comment *domain.Comment) error
+	CreateComment(comment *domain.Comment, userId string) error
 }
 
 type CommentService interface {

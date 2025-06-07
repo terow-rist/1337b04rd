@@ -21,8 +21,8 @@ func NewPostService(repo port.PostRepository, commentRepo port.CommentRepository
 	}
 }
 
-func (s *PostService) CreatePost(post *domain.Post) error {
-	return s.repo.CreatePost(post)
+func (s *PostService) CreatePost(post *domain.Post, id string) error {
+	return s.repo.CreatePost(post, id)
 }
 
 func (s *PostService) ListPosts() ([]domain.Post, error) {
@@ -85,7 +85,7 @@ func (s *PostService) GetPostWithCommentsById(idStr string) (*domain.PostComents
 	return s.repo.GetPostWithCommentsById(&id)
 }
 
-func (s *PostService) CreateComment(comment *domain.Comment, idStr string) error {
+func (s *PostService) CreateComment(comment *domain.Comment, idStr string, userId string) error {
 	id, err := strconv.ParseUint(idStr, 10, 64)
 	if err != nil {
 		return port.ErrInvalidPostId
@@ -93,7 +93,7 @@ func (s *PostService) CreateComment(comment *domain.Comment, idStr string) error
 
 	comment.PostID = id
 
-	if err := s.commentRepo.CreateComment(comment); err != nil {
+	if err := s.commentRepo.CreateComment(comment, userId); err != nil {
 		return err
 	}
 	return nil

@@ -160,7 +160,7 @@ func (h *PostHandler) HandleCreate(w http.ResponseWriter, r *http.Request) {
 		Image:      imageURL,
 	}
 
-	err := h.svc.CreatePost(post)
+	err := h.svc.CreatePost(post, userSession.ID)
 	if err != nil {
 		renderError(w, h.tmpl, statusCode, msg)
 		return
@@ -192,7 +192,7 @@ func (h *PostHandler) addComment(w http.ResponseWriter, r *http.Request, postID 
 		Content:         content,
 	}
 
-	err := h.svc.CreateComment(comment, postID)
+	err := h.svc.CreateComment(comment, postID, userSession.ID)
 	if err != nil {
 		if errors.Is(err, port.ErrInvalidPostId) {
 			statusCode = http.StatusBadRequest

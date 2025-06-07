@@ -16,23 +16,23 @@ func NewPostRepository(db *sql.DB) *PostRepository {
 	}
 }
 
-func (r *PostRepository) CreatePost(post *domain.Post) error {
+func (r *PostRepository) CreatePost(post *domain.Post, id string) error {
 	var (
 		query string
 		args  []interface{}
 	)
 	if post.Image != "" {
 		query = `
-	INSERT INTO posts (user_name, user_avatar, title, content, image)
+	INSERT INTO posts (user_id, user_avatar, title, content, image)
 	VALUES ($1, $2, $3, $4, $5)
 	`
-		args = []interface{}{post.UserName, post.UserAvatar, post.Title, post.Content, post.Image}
+		args = []interface{}{id, post.UserAvatar, post.Title, post.Content, post.Image}
 	} else {
 		query = `
-	INSERT INTO posts (user_name, user_avatar, title, content)
+	INSERT INTO posts (user_id, user_avatar, title, content)
 	VALUES ($1, $2, $3, $4)
 	`
-		args = []interface{}{post.UserName, post.UserAvatar, post.Title, post.Content}
+		args = []interface{}{id, post.UserAvatar, post.Title, post.Content}
 	}
 
 	_, err := r.db.Exec(query, args...)
@@ -46,7 +46,10 @@ func (r *PostRepository) CreatePost(post *domain.Post) error {
 func (r *PostRepository) ListPosts() ([]domain.Post, error) {
 	var posts []domain.Post
 	query := `
-	SELECT * FROM posts;
+	SELECT 
+		p.post_id, u.name, p.user_avatar, p.title, p.content, p.image, p.created_at, p.archived_at
+	FROM posts p
+	LEFT JOIN users u ON u.user_id = p.user_id;
 	`
 
 	rows, err := r.db.Query(query)
@@ -83,12 +86,14 @@ func (r *PostRepository) ListPosts() ([]domain.Post, error) {
 func (r *PostRepository) GetPostWithCommentsById(id *uint64) (*domain.PostComents, error) {
 	query := `
 	SELECT 
-		p.post_id, p.user_name, p.user_avatar, p.title, p.content, p.image, p.created_at, p.archived_at,
-		c.comment_id, c.user_name, c.user_avatar, c.post_id, c.parent_comment_id, c.content, c.created_at
+		p.post_id, u.name, p.user_avatar, p.title, p.content, p.image, p.created_at, p.archived_at,
+		c.comment_id, uc.name, c.user_avatar, c.post_id, c.parent_comment_id, c.content, c.created_at
 	FROM posts p
 	LEFT JOIN comments c ON c.post_id = p.post_id
+	LEFT JOIN users u ON u.user_id = p.user_id
+	LEFT JOIN users uc ON uc.user_id = c.user_id
 	WHERE p.post_id = $1
-	ORDER BY c.created_at ASC
+	ORDER BY c.created_at ASC;
 	`
 
 	rows, err := r.db.Query(query, id)

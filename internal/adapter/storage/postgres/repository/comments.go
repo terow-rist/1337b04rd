@@ -17,7 +17,9 @@ func NewCommentRepository(db *sql.DB) *CommentRepository {
 
 func (r *CommentRepository) GetLastComment(id *uint64) (*domain.Comment, error) {
 	query := `
-	SELECT * FROM comments
+	SELECT c.comment_id, u.name, c.user_avatar, c.post_id, c.parent_comment_id, c.content, c.created_at 
+	FROM comments c
+	LEFT JOIN users u ON u.user_id = c.user_id
 	WHERE post_id = $1
 	ORDER BY comment_id DESC
 	LIMIT 1
@@ -33,21 +35,21 @@ func (r *CommentRepository) GetLastComment(id *uint64) (*domain.Comment, error) 
 	return &comment, nil
 }
 
-func (r *CommentRepository) CreateComment(comment *domain.Comment) error {
+func (r *CommentRepository) CreateComment(comment *domain.Comment, userId string) error {
 	var query string
 	var args []interface{}
 	if comment.ParentCommentID == 0 {
 		query = `
-		INSERT INTO comments (user_name, user_avatar, post_id,content)
+		INSERT INTO comments (user_id, user_avatar, post_id,content)
 		VALUES ($1, $2, $3, $4)
 		`
-		args = []interface{}{comment.UserName, comment.UserAvatar, comment.PostID, comment.Content}
+		args = []interface{}{userId, comment.UserAvatar, comment.PostID, comment.Content}
 	} else {
 		query = `
-		INSERT INTO comments (user_name, user_avatar, post_id, parent_comment_id, content)
+		INSERT INTO comments (user_id, user_avatar, post_id, parent_comment_id, content)
 		VALUES ($1, $2, $3, $4, $5)
 		`
-		args = []interface{}{comment.UserName, comment.UserAvatar, comment.PostID, comment.ParentCommentID, comment.Content}
+		args = []interface{}{userId, comment.UserAvatar, comment.PostID, comment.ParentCommentID, comment.Content}
 
 	}
 
