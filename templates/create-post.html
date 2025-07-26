@@ -5,98 +5,469 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create New Thread</title>
     <style>
-    body {
-        background-color: #eef1f5;
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 20px;
-        color: #333;
-    }
-    .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-        padding: 10px;
-        background-color: #fff;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .header h1 {
-        margin: 0;
-        font-size: 24px;
-    }
-    .button {
-        display: inline-block;
-        padding: 8px 16px;
-        background-color: #444;
-        color: white;
-        text-decoration: none;
-        border-radius: 4px;
-        font-size: 14px;
-        border: none;
-        cursor: pointer;
-    }
-    .button:hover {
-        background-color: #222;
-    }
-    form {
-        background-color: #fff;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        max-width: 600px;
-        margin: 0 auto;
-    }
-    label {
-        display: block;
-        margin-top: 15px;
-        font-weight: bold;
-        font-size: 15px;
-    }
-    input[type="text"],
-    textarea,
-    input[type="file"] {
-        width: 100%;
-        padding: 10px;
-        margin-top: 6px;
-        box-sizing: border-box;
-        border-radius: 5px;
-        border: 1px solid #ccc;
-        font-size: 15px;
-    }
-    textarea {
-        resize: vertical;
-        min-height: 150px;
-    }
-    .form-actions {
-        margin-top: 25px;
-        display: flex;
-        justify-content: space-between;
-    }
-</style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 25px 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: slideDown 0.6s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header h1::before {
+            content: '✨';
+            font-size: 24px;
+        }
+
+        .button {
+            display: inline-flex;
+            align-items: center;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .button:hover::before {
+            left: 100%;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(79, 172, 254, 0.4);
+        }
+
+        .back-button::before {
+            content: '🏠 ';
+            margin-right: 5px;
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 700px;
+            margin: 0 auto;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+            position: relative;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            border-radius: 22px;
+            z-index: -1;
+            opacity: 0.3;
+        }
+
+        .form-title {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 24px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .label-title::before {
+            content: '📝';
+            font-size: 16px;
+        }
+
+        .label-content::before {
+            content: '💭';
+            font-size: 16px;
+        }
+
+        .label-image::before {
+            content: '🖼️';
+            font-size: 16px;
+        }
+
+        input[type="text"],
+        textarea,
+        input[type="file"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid rgba(79, 172, 254, 0.2);
+            border-radius: 12px;
+            font-size: 15px;
+            font-family: inherit;
+            background: rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        input[type="text"]:focus,
+        textarea:focus,
+        input[type="file"]:focus {
+            outline: none;
+            border-color: #4facfe;
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+            transform: translateY(-2px);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 150px;
+            line-height: 1.5;
+        }
+
+        input[type="file"] {
+            padding: 10px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        input[type="file"]::file-selector-button {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            margin-right: 10px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="file"]::file-selector-button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(79, 172, 254, 0.3);
+        }
+
+        .char-counter {
+            text-align: right;
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        .form-actions {
+            margin-top: 35px;
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .submit-button {
+            flex: 1;
+            justify-content: center;
+            gap: 8px;
+            padding: 16px 24px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .submit-button::before {
+            content: '🚀';
+            font-size: 16px;
+        }
+
+        .cancel-button {
+            background: rgba(108, 117, 125, 0.8);
+            padding: 16px 24px;
+            font-size: 16px;
+        }
+
+        .cancel-button::before {
+            content: '❌';
+            margin-right: 5px;
+        }
+
+        .cancel-button:hover {
+            background: rgba(108, 117, 125, 1);
+            box-shadow: 0 8px 25px rgba(108, 117, 125, 0.4);
+        }
+
+        .floating-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            animation: float 20s infinite linear;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .form-tips {
+            background: rgba(79, 172, 254, 0.1);
+            border: 1px solid rgba(79, 172, 254, 0.2);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 25px;
+        }
+
+        .form-tips h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-tips h4::before {
+            content: '💡';
+            font-size: 16px;
+        }
+
+        .form-tips ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .form-tips li {
+            color: #5a6c7d;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        .form-tips li::before {
+            content: '•';
+            color: #4facfe;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .form-container {
+                padding: 25px;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Create New Thread</h1>
-        <a href="/" class="button">← Back to Catalog</a>
+    <div class="floating-particles">
+        <div class="particle" style="left: 10%; width: 4px; height: 4px; animation-delay: 0s;"></div>
+        <div class="particle" style="left: 20%; width: 6px; height: 6px; animation-delay: 2s;"></div>
+        <div class="particle" style="left: 30%; width: 3px; height: 3px; animation-delay: 4s;"></div>
+        <div class="particle" style="left: 40%; width: 5px; height: 5px; animation-delay: 6s;"></div>
+        <div class="particle" style="left: 50%; width: 4px; height: 4px; animation-delay: 8s;"></div>
+        <div class="particle" style="left: 60%; width: 6px; height: 6px; animation-delay: 10s;"></div>
+        <div class="particle" style="left: 70%; width: 3px; height: 3px; animation-delay: 12s;"></div>
+        <div class="particle" style="left: 80%; width: 5px; height: 5px; animation-delay: 14s;"></div>
+        <div class="particle" style="left: 90%; width: 4px; height: 4px; animation-delay: 16s;"></div>
     </div>
 
-    <form action="/create" method="POST" enctype="multipart/form-data" >
-        <label for="title">Title:</label>
-        <input type="text" id="title" name="title" maxlength="20" required>
-
-        <label for="content">Content:</label>
-        <textarea id="content" name="content" maxlength="5000" required></textarea>
-
-        <label for="image">Image (optional):</label>
-        <input type="file" id="image" name="image" accept="image/*">
-
-        <div class="form-actions">
-            <button type="submit" class="button">Post Thread</button>
-            <a href="/" class="button">Cancel</a>
+    <div class="container">
+        <div class="header">
+            <h1>Create New Thread</h1>
+            <a href="/" class="button back-button">Back to Catalog</a>
         </div>
-    </form>
+
+        <div class="form-container">
+            <div class="form-tips">
+                <h4>Quick Tips</h4>
+                <ul>
+                    <li>Keep titles concise and descriptive (max 20 characters)</li>
+                    <li>Add rich content to spark discussions (max 5000 characters)</li>
+                    <li>Images help make your thread more engaging</li>
+                    <li>Threads without comments are deleted after 10 minutes</li>
+                </ul>
+            </div>
+
+            <form action="/create" method="POST" enctype="multipart/form-data" id="createForm">
+                <div class="form-group">
+                    <label for="title" class="label-title">Thread Title</label>
+                    <input type="text" id="title" name="title" maxlength="20" required placeholder="Enter a catchy title...">
+                    <div class="char-counter" id="titleCounter">0/20 characters</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="content" class="label-content">Thread Content</label>
+                    <textarea id="content" name="content" maxlength="5000" required placeholder="Share your thoughts, start a discussion..."></textarea>
+                    <div class="char-counter" id="contentCounter">0/5000 characters</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="image" class="label-image">Attach Image (Optional)</label>
+                    <input type="file" id="image" name="image" accept="image/*">
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="button submit-button">Create Thread</button>
+                    <a href="/" class="button cancel-button">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Character counters
+        const titleInput = document.getElementById('title');
+        const contentInput = document.getElementById('content');
+        const titleCounter = document.getElementById('titleCounter');
+        const contentCounter = document.getElementById('contentCounter');
+
+        titleInput.addEventListener('input', function() {
+            const count = this.value.length;
+            titleCounter.textContent = `${count}/20 characters`;
+            titleCounter.style.color = count > 15 ? '#e74c3c' : '#7f8c8d';
+        });
+
+        contentInput.addEventListener('input', function() {
+            const count = this.value.length;
+            contentCounter.textContent = `${count}/5000 characters`;
+            contentCounter.style.color = count > 4500 ? '#e74c3c' : '#7f8c8d';
+        });
+
+        // Form validation and animation
+        document.getElementById('createForm').addEventListener('submit', function(e) {
+            const submitButton = document.querySelector('.submit-button');
+            submitButton.innerHTML = '🚀 Creating...';
+            submitButton.disabled = true;
+        });
+
+        // File input enhancement
+        const fileInput = document.getElementById('image');
+        fileInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const fileName = this.files[0].name;
+                console.log('Selected file:', fileName);
+            }
+        });
+    </script>
 </body>
 </html>
